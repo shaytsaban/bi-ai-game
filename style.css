@@ -1,22 +1,88 @@
-/* Light Theme Academic Design Variables */
-:root {
-    --bg-light: #f7f9fc;
-    --panel-bg: #ffffff;
-    --panel-border: rgba(0, 0, 0, 0.08);
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    
-    --primary-blue: #3b82f6;
-    --primary-blue-glow: rgba(59, 130, 246, 0.15);
-    --primary-purple: #8b5cf6;
-    --primary-purple-glow: rgba(139, 92, 246, 0.15);
-    
-    --color-green: #10b981;
-    --color-red: #ef4444;
-    
-    --font-main: 'Rubik', sans-serif;
-    --font-logo: 'Outfit', sans-serif;
-    --transition-speed: 0.25s;
+/* Mascot Helper Floating Element styling */
+.mascot-helper-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    cursor: grab;
+    width: 90px;
+    height: 90px;
+    user-select: none;
+    transition: transform 0.1s ease;
+}
+
+.mascot-helper-container:active {
+    cursor: grabbing;
+}
+
+.mascot-avatar-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.mascot-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--primary-purple);
+    padding: 3px;
+    animation: mascotIdle 3s ease-in-out infinite;
+}
+
+.mascot-bubble {
+    position: absolute;
+    bottom: 105px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    color: var(--text-primary);
+    border: 2px solid var(--primary-purple);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    width: 210px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+    display: none; /* Controlled via JS */
+    direction: rtl;
+    text-align: right;
+}
+
+.mascot-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    display: block;
+    width: 0;
+}
+
+.mascot-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 11px 11px 0;
+    border-style: solid;
+    border-color: var(--primary-purple) transparent;
+    display: block;
+    width: 0;
+    z-index: -1;
+}
+
+@keyframes mascotIdle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(2deg); }
 }
 
 /* Reset & Grid background */
