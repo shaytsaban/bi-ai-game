@@ -2,6 +2,8 @@
  * BI & AI Survival Game: App Logic (v7 - 10 Hebrew Questions)
  */
 
+let activeStreamInterval = null;
+
 // --- Global State ---
 const state = {
     wisdom: 0,
@@ -519,6 +521,8 @@ function renderTransformCards() {
         
         dom.transformItemsPool.appendChild(itemCard);
     });
+    
+    checkIfLoadReady();
 }
 
 function checkIfLoadReady() {
