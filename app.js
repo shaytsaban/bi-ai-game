@@ -212,146 +212,129 @@ function navigateTo(zoneId) {
     }
     
     // Update mascot helper tip when navigating to a new zone
-    updateMascotTip(zoneId);
+    showMascotTip(zoneId);
 }
 
 // --- Mascot Helper Logic (Dr. Tsaban Clone) ---
 const mascot = document.getElementById('mascot-helper');
 const mascotTooltip = document.getElementById('mascot-tooltip');
+let mascotBubbleTimer = null;
 
 const mascotTips = {
     'zone-welcome': [
-        "אהלן! תרשמו כאן למעלה, ואם אתם מספיק אמיצים - תבחרו דמות. המבולבל מקבל בונוס בלבול!",
-        "בלי לחץ, הדוקטור פה לעזור. שם ואימייל ונתחיל!",
-        "תעודת הסמכה רשמית חתומה על ידי מחכה למי שלא מדלג!"
+        "היי! 👋 אני ד״ר צבאן הקטן. לחץ עליי בכל שלב לרמזים!",
+        "תרשמו שם ואימייל למעלה, ואם אתם אמיצים — תבחרו דמות 🤷‍♂️",
+        "מי שלא מדלג מקבל תעודה חתומה על ידי! 🎓"
     ],
     'zone-learning-lounge': [
-        "כאן לומדים! אל תרוצו ישר לשחק, המשל של מכולת הרצל יציל אתכם בבוחן!",
-        "שים לב להבדל: מערכת של פעם רואה רק עבר. BI מנבאת עתיד!",
-        "סלט פירות ענק הוא בעצם צינור ETL. פשוט, לא?"
+        "אל תרוצו! המשל של מכולת הרצל יציל אתכם בבוחן 🛒",
+        "מערכת של פעם = עבר בלבד. BI = עתיד! 🔮",
+        "סלט פירות ענק = צינור ETL. ככה פשוט 🥗"
     ],
     'zone-traditional-bi': [
-        "גרור את המאפיינים למקום הנכון, או פשוט תלחץ עליהם - זה מעביר אותם אוטומטית!",
-        "מקורות מרובים וטיקטוק? ברור שזה BI!",
-        "דוחות סגורים וקשיחים זה כל כך אייטיז. שים אותם בקלאסי!"
+        "לחצו על הכרטיסיות כדי להעביר אותן בין הקטגוריות! 👆",
+        "טיקטוק ומזג אוויר? ברור שזה BI ולא קלאסי! 📱",
+        "דוחות קשיחים? שנות ה-80 רוצות את זה בחזרה 📼"
     ],
     'zone-etl-simulator': [
-        "קודם כל שלוף פירות (Extract), אחרי זה ננקה אותם בזהירות!",
-        "שים לב לפירות הרקובים ולבוטים - תלחץ עליהם כדי לנקות אותם (Transform)!",
-        "אחרי שניקית הכל, כפתור הטעינה לדאשבורד (Load) יפתח ותראה את ה-KPI עולה!"
+        "שלב 1: שלוף פירות 🍎 → שלב 2: זרוק רקובים 🗑️ → שלב 3: טען! 📊",
+        "הפירות האדומים = ספאם ובוטים. תלחץ עליהם להעיף! 🤖",
+        "אחרי הניקוי כפתור Load יופיע ותראה את ה-KPI טס! 📈"
     ],
     'zone-ai-ml-dl': [
-        "כאן רואים את השילוש הקדוש! באקסל אתה מגדיר את החוקים (AI).",
-        "בלמידת מכונה (ML) אתה מציע פרמטרים והיא מוצאת את הקשרים.",
-        "בלמידה עמוקה (DL) פשוט תפגיז במידע גולמי - המכונה תבין לבד!"
+        "נוסחת אקסל = AI הכי בסיסי. כן, גם IF זה AI! 🤯",
+        "בML אתה מציע פרמטרים. המכונה מחליטה מי באמת חשוב 🧠",
+        "בDL פשוט תפציץ מידע גולמי. המכונה תבין לבד כמו תינוק 👶"
     ],
     'zone-survival-quiz': [
-        "זהו זה, הבוחן הסופי! 10 שאלות שיקבעו אם תקבל את התעודה.",
-        "תחשוב טוב לפני שאתה עונה, כל תשובה משפיעה על מדד הבלבול!",
-        "אל תדאג, גם אם טעית, הבננה המאוירת שלי תעודד אותך!"
+        "10 שאלות בינך לבין התעודה. בהצלחה! 🍀",
+        "תחשוב על המשלים שלמדת, הם המפתח לתשובות! 🔑",
+        "טעית? לא נורא, הבננה שלי תעודד אותך 🍌"
     ],
     'zone-victory': [
-        "איזה אלוף! מגיעה לך התעודה הרשמית שלי. תדפיס ותמסגר!",
-        "תראה איזה יופי של תעודה, ישר לקורות החיים!",
-        "ניצחת את הבירוקרטיה האקדמית! סע לשלום!"
+        "איזה אלוף/ה! מגיעה לך התעודה. תמסגר! 🖼️",
+        "ישר לקורות החיים עם ההסמכה הזו! 📄",
+        "ניצחת את הבירוקרטיה! 🏆 סע/י לשלום!"
     ]
 };
 
-function updateMascotTip(zoneId) {
+function showMascotTip(zoneId) {
     if (!mascotTooltip) return;
-    const tips = mascotTips[zoneId] || ["אני איתך לאורך כל הדרך!"];
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    mascotTooltip.textContent = randomTip;
+    const tips = mascotTips[zoneId] || ["אני איתך! לחץ עליי לרמזים 💡"];
+    mascotTooltip.textContent = tips[Math.floor(Math.random() * tips.length)];
     mascotTooltip.style.display = 'block';
     
-    // Auto hide bubble after 7 seconds, show again on hover or click
-    if (window.mascotBubbleTimeout) clearTimeout(window.mascotBubbleTimeout);
-    window.mascotBubbleTimeout = setTimeout(() => {
+    if (mascotBubbleTimer) clearTimeout(mascotBubbleTimer);
+    mascotBubbleTimer = setTimeout(() => {
         mascotTooltip.style.display = 'none';
-    }, 7000);
+    }, 6000);
 }
 
-// Dragging mascot functionality
+function hideMascotTip() {
+    if (!mascotTooltip) return;
+    mascotTooltip.style.display = 'none';
+    if (mascotBubbleTimer) clearTimeout(mascotBubbleTimer);
+}
+
+// Drag + Click logic
 if (mascot) {
-    let isDragging = false;
-    let startX, startY, initialLeft, initialTop;
+    let dragged = false;
+    let sx, sy, ox, oy;
     
-    // Show tooltip on hover
-    mascot.addEventListener('mouseenter', () => {
-        mascotTooltip.style.display = 'block';
-    });
-    
-    // Click triggers new tip
-    mascot.addEventListener('click', (e) => {
-        if (isDragging) return;
-        updateMascotTip(state.currentZone);
-    });
+    mascot.addEventListener('mousedown', onDown);
+    mascot.addEventListener('touchstart', onDown, { passive: false });
 
-    mascot.addEventListener('mousedown', dragStart);
-    mascot.addEventListener('touchstart', dragStart, { passive: false });
-
-    function dragStart(e) {
-        // Prevent drag on tooltip
-        if (e.target === mascotTooltip) return;
-        
-        isDragging = false; // Reset to distinguish from click
-        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-        
-        startX = clientX;
-        startY = clientY;
-        
-        const rect = mascot.getBoundingClientRect();
-        initialLeft = rect.left;
-        initialTop = rect.top;
-        
-        // Temporarily override positioning to absolute from fixed during drag relative to viewport
+    function onDown(e) {
+        dragged = false;
+        const ev = e.touches ? e.touches[0] : e;
+        sx = ev.clientX;
+        sy = ev.clientY;
+        const r = mascot.getBoundingClientRect();
+        ox = r.left;
+        oy = r.top;
         mascot.style.bottom = 'auto';
-        mascot.style.left = initialLeft + 'px';
-        mascot.style.top = initialTop + 'px';
+        mascot.style.left = ox + 'px';
+        mascot.style.top = oy + 'px';
         
-        document.addEventListener('mousemove', dragMove);
-        document.addEventListener('mouseup', dragEnd);
-        document.addEventListener('touchmove', dragMove, { passive: false });
-        document.addEventListener('touchend', dragEnd);
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
     }
 
-    function dragMove(e) {
-        isDragging = true;
-        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+    function onMove(e) {
+        const ev = e.touches ? e.touches[0] : e;
+        const dx = ev.clientX - sx;
+        const dy = ev.clientY - sy;
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragged = true;
+        if (!dragged) return;
         
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        
-        // Calculate new positions bounded to viewport
-        let newLeft = initialLeft + dx;
-        let newTop = initialTop + dy;
-        
-        const maxW = window.innerWidth - 95;
-        const maxH = window.innerHeight - 95;
-        
-        newLeft = Math.max(10, Math.min(newLeft, maxW));
-        newTop = Math.max(10, Math.min(newTop, maxH));
-        
-        mascot.style.left = newLeft + 'px';
-        mascot.style.top = newTop + 'px';
-        
-        // Prevent default screen scrolling during mobile touch-drag
+        let nl = ox + dx, nt = oy + dy;
+        nl = Math.max(0, Math.min(nl, window.innerWidth - 65));
+        nt = Math.max(0, Math.min(nt, window.innerHeight - 65));
+        mascot.style.left = nl + 'px';
+        mascot.style.top = nt + 'px';
         if (e.cancelable) e.preventDefault();
     }
 
-    function dragEnd() {
-        document.removeEventListener('mousemove', dragMove);
-        document.removeEventListener('mouseup', dragEnd);
-        document.removeEventListener('touchmove', dragMove);
-        document.removeEventListener('touchend', dragEnd);
+    function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+        
+        if (!dragged) {
+            // It was a click, not a drag — toggle bubble
+            if (mascotTooltip.style.display === 'block') {
+                hideMascotTip();
+            } else {
+                showMascotTip(state.currentZone);
+            }
+        }
     }
     
-    // Initial tip trigger on load
-    setTimeout(() => {
-        updateMascotTip('zone-welcome');
-    }, 1500);
+    // Show welcome tip after 2 seconds
+    setTimeout(() => showMascotTip('zone-welcome'), 2000);
 }
 
 function unlockSection(zoneId, navBtnId) {
