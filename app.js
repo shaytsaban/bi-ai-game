@@ -988,16 +988,32 @@ function selectAnswer(ans, btnEl) {
     
     const q = quizQuestions[state.quizIndex];
     
+    const correctPhrases = [
+        "נכון מאוד! 🎉 כבוד למגזר!",
+        "קללל! 🍌 גאונות טהורה!",
+        "ד״ר צבאן גאה בך! 🎓",
+        "בול בפוני! 🎯 שברת את המערכת!",
+        "תותח על! ⚡ ה-BI זורם אצלך בדם!"
+    ];
+
+    const incorrectPhrases = [
+        "טעות מביכה! 🤦‍♂️",
+        "הרצל מוסר שזה ממש לא זה... 🗑️",
+        "אויש, בלבול ברמת קריסה! 😭",
+        "לא נכון! המכונה צוחקת עליך 🤖",
+        "פספוס! אולי כדאי לקרוא את המשל שוב? 📚"
+    ];
+
     if (ans.correct) {
         btnEl.classList.add('correct');
-        dom.feedbackStatusTitle.textContent = "נכון מאוד! 🎉 כבוד למגזר";
+        dom.feedbackStatusTitle.textContent = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
         dom.feedbackStatusTitle.style.color = "var(--color-green)";
         state.wisdom += 10;
         state.confusion = Math.max(0, state.confusion - 10);
         drawMemeGraphic(true);
     } else {
         btnEl.classList.add('incorrect');
-        dom.feedbackStatusTitle.textContent = "טעות מביכה! 🤦‍♂️";
+        dom.feedbackStatusTitle.textContent = incorrectPhrases[Math.floor(Math.random() * incorrectPhrases.length)];
         dom.feedbackStatusTitle.style.color = "var(--color-red)";
         state.confusion = Math.min(120, state.confusion + 5);
         
@@ -1020,28 +1036,14 @@ function selectAnswer(ans, btnEl) {
 
 function drawMemeGraphic(isCorrect) {
     const container = dom.memeVisual;
+    const randomRot = (Math.random() * 8 - 4).toFixed(1);
     if (isCorrect) {
         container.innerHTML = `
-            <svg width="120" height="120" viewBox="0 0 100 100" style="background:#fff; border-radius:50%; border:2px solid var(--color-green);">
-                <circle cx="50" cy="55" r="30" fill="#ffd8a8" />
-                <rect x="28" y="45" width="20" height="10" rx="3" fill="#000" />
-                <rect x="52" y="45" width="20" height="10" rx="3" fill="#000" />
-                <line x1="48" y1="50" x2="52" y2="50" stroke="#000" stroke-width="3" />
-                <path d="M 38 68 Q 50 78 62 68" fill="none" stroke="#e64980" stroke-width="4" stroke-linecap="round" />
-                <polygon points="50,15 80,30 50,45 20,30" fill="#228be6" />
-                <rect x="42" y="30" width="16" height="12" fill="#1c7ed6" />
-            </svg>
+            <img src="assets/banana_correct.png" alt="Correct Banana" style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; transform: rotate(${randomRot}deg); transition: transform 0.3s ease;">
         `;
     } else {
         container.innerHTML = `
-            <svg width="120" height="120" viewBox="0 0 100 100" style="background:#fff; border-radius:50%; border:2px solid var(--color-red);">
-                <circle cx="50" cy="55" r="30" fill="#ffd8a8" />
-                <circle cx="40" cy="48" r="3" fill="#000" />
-                <circle cx="60" cy="48" r="3" fill="#000" />
-                <path d="M 40 52 L 40 68" stroke="#22b8cf" stroke-width="3" stroke-linecap="round" />
-                <path d="M 60 52 L 60 68" stroke="#22b8cf" stroke-width="3" stroke-linecap="round" />
-                <path d="M 38 72 Q 50 62 62 72" fill="none" stroke="#c92a2a" stroke-width="4" stroke-linecap="round" />
-            </svg>
+            <img src="assets/banana_wrong.png" alt="Wrong Banana" style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; transform: rotate(${randomRot}deg); transition: transform 0.3s ease;">
         `;
     }
 }
