@@ -431,12 +431,15 @@ dom.btnEtlExtract.addEventListener('click', () => {
         if (generated >= maxParticles) {
             clearInterval(activeStreamInterval);
             activeStreamInterval = null;
-            dom.btnEtlTransformPhase.classList.remove('hidden');
+            // Show transform button after last fruit has had time to travel
+            setTimeout(() => {
+                dom.btnEtlTransformPhase.classList.remove('hidden');
+            }, 1500);
             return;
         }
         spawnParticle();
         generated++;
-    }, 600);
+    }, 300);
 });
 
 const particleTypes = [
@@ -466,11 +469,32 @@ function spawnParticle() {
     const el = document.createElement('div');
     el.id = p.id;
     el.className = `data-particle ${p.isBot ? 'spam' : 'insight'}`;
-    el.innerHTML = `<span style="font-size:12px;">${p.label}</span>`;
-    // Use CSS animation for reliable movement
-    el.style.cssText = `position:absolute; top:${Math.random() * 55 + 10}%; animation: slideParticle 4s linear forwards;`;
+    el.innerHTML = `<span>${p.label}</span>`;
+    
+    // Position: start from the LEFT side (inlet is on right in the HTML, but visually
+    // we slide from right side of pipe-body to the left)
+    const pipeH = dom.pipelineStream.clientHeight || 100;
+    const topPx = Math.floor(Math.random() * (pipeH - 60)) + 4;
+    el.style.position = 'absolute';
+    el.style.top = topPx + 'px';
+    el.style.right = '-60px';   // start hidden off-right
     
     dom.pipelineStream.appendChild(el);
+    
+    // Animate: slide from right to left
+    const pipeW = dom.pipelineStream.clientWidth || 300;
+    let pos = -60; // starting right value (negative = off-screen right)
+    const speed = 6; // px per tick
+    const targetRight = pipeW + 10; // stop when fully off the left side
+    
+    const mover = setInterval(() => {
+        if (!el.parentNode) { clearInterval(mover); return; }
+        pos += speed;
+        el.style.right = pos + 'px';
+        if (pos > targetRight) {
+            clearInterval(mover);
+        }
+    }, 20);
 }
 
 dom.btnEtlTransformPhase.addEventListener('click', () => {
