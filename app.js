@@ -1,8 +1,9 @@
 /**
- * BI & AI Survival Game: App Logic (v7 - 10 Hebrew Questions)
+ * BI & AI Survival Game: App Logic (v9 - ETL Fix)
  */
 
 let activeStreamInterval = null;
+let particleIdCounter = 0;
 
 // --- Global State ---
 const state = {
@@ -417,20 +418,25 @@ dom.btnEtlExtract.addEventListener('click', () => {
     document.getElementById('etl-step-extract').classList.add('active');
     
     dom.pipelineStream.innerHTML = '';
+    state.particles = [];
+    state.extractedCount = 0;
+    dom.statTotalExtracted.textContent = '0';
     
-    let generated = 0;
     const maxParticles = 12;
+    let generated = 0;
+    
+    if (activeStreamInterval) clearInterval(activeStreamInterval);
     
     activeStreamInterval = setInterval(() => {
         if (generated >= maxParticles) {
             clearInterval(activeStreamInterval);
+            activeStreamInterval = null;
             dom.btnEtlTransformPhase.classList.remove('hidden');
             return;
         }
-        
         spawnParticle();
         generated++;
-    }, 450);
+    }, 600);
 });
 
 const particleTypes = [
@@ -440,17 +446,17 @@ const particleTypes = [
     { label: 'פרי רקוב 🗑️', isBot: true },
     { label: 'בוט ספאם 🤖', isBot: true },
     { label: 'בננה רקובה 🗑️', isBot: true },
-    { label: 'אפרסק מתוק 🍑', isBot: false }
+    { label: 'אפרסק מתוק 🍑', isBot: false },
+    { label: 'ענב מתוק 🍇', isBot: false },
+    { label: 'נתון כפול 🔁', isBot: true }
 ];
 
 function spawnParticle() {
     const proto = particleTypes[Math.floor(Math.random() * particleTypes.length)];
     const p = {
-        id: 'p-' + particleIdCounter++,
+        id: 'p-' + (particleIdCounter++),
         label: proto.label,
-        isBot: proto.isBot,
-        x: 0,
-        y: Math.random() * 50 + 15
+        isBot: proto.isBot
     };
     
     state.particles.push(p);
@@ -461,27 +467,10 @@ function spawnParticle() {
     el.id = p.id;
     el.className = `data-particle ${p.isBot ? 'spam' : 'insight'}`;
     el.innerHTML = `<span style="font-size:12px;">${p.label}</span>`;
-    el.style.right = p.x + 'px';
-    el.style.top = p.y + 'px';
+    // Use CSS animation for reliable movement
+    el.style.cssText = `position:absolute; top:${Math.random() * 55 + 10}%; animation: slideParticle 4s linear forwards;`;
     
     dom.pipelineStream.appendChild(el);
-    animateParticle(p, el);
-}
-
-function animateParticle(p, el) {
-    const pipeWidth = dom.pipelineStream.clientWidth;
-    let currentX = 0;
-    
-    function step() {
-        if (!document.getElementById(p.id)) return;
-        currentX += 3.5;
-        el.style.right = currentX + 'px';
-        
-        if (currentX < pipeWidth - 45) {
-            requestAnimationFrame(step);
-        }
-    }
-    requestAnimationFrame(step);
 }
 
 dom.btnEtlTransformPhase.addEventListener('click', () => {
